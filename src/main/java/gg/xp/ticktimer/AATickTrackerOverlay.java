@@ -3,10 +3,11 @@ package gg.xp.ticktimer;
 import gg.xp.reevent.events.EventContext;
 import gg.xp.reevent.scan.HandleEvents;
 import gg.xp.reevent.scan.ScanMe;
+import gg.xp.xivsupport.events.actlines.events.HpMpTickEvent;
 import gg.xp.xivsupport.events.actlines.events.TickEvent;
 import gg.xp.xivsupport.events.state.XivState;
+import gg.xp.xivsupport.events.state.combatstate.HpMpTickTracker;
 import gg.xp.xivsupport.events.state.combatstate.TickInfo;
-import gg.xp.xivsupport.events.state.combatstate.TickTracker;
 import gg.xp.xivsupport.gui.overlay.OverlayConfig;
 import gg.xp.xivsupport.gui.overlay.RefreshLoop;
 import gg.xp.xivsupport.gui.overlay.XivOverlay;
@@ -21,43 +22,65 @@ import java.awt.*;
 @ScanMe
 public class AATickTrackerOverlay extends XivOverlay {
 	private final AATickTracker aaTracker;
-	private final TickTracker mpTracker;
+	private final HpMpTickTracker mpTracker;
 	private final XivState state;
 	private final AATickSettings settings;
 	private final ResourceBar aaBar;
 	private final ResourceBar mpBar;
-	private TickEvent lastTickEvent;
+	private HpMpTickEvent lastTickEvent;
 	private Color aaFill;
 	private Color aaReady;
 
-	public AATickTrackerOverlay(AATickTracker tracker, OverlayConfig oc, PersistenceProvider pers, TickTracker mpTracker, XivState state, AATickSettings settings) {
+	public AATickTrackerOverlay(AATickTracker tracker, OverlayConfig oc, PersistenceProvider pers, HpMpTickTracker mpTracker, XivState state, AATickSettings settings) {
 		super("AA/Tick Tracker", "aa-tick-tracker.overlay", oc, pers);
 		this.aaTracker = tracker;
 		this.mpTracker = mpTracker;
 		this.state = state;
 		this.settings = settings;
 
-		JPanel panel = getPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		JPanel panel = new JPanel();
+		panel.setLayout(null);
 		panel.setOpaque(false);
+
+		Dimension barSize = new Dimension(120, 20);
 
 		aaBar = new ResourceBar();
 		setAAbarText(null);
-		aaBar.setPreferredSize(new Dimension(120, 20));
+		aaBar.setBounds(0, 0, 120, 20);
+		aaBar.setMaximumSize(barSize);
 		aaBar.setOpaque(false);
-		aaBar.setVisible(false);
+//		aaBar.setVisible(false);
 		panel.add(aaBar);
 
 		mpBar = new ResourceBar();
-		mpBar.setPreferredSize(new Dimension(120, 20));
+		mpBar.setBounds(0, 20, 120, 20);
+		mpBar.setSize(barSize);
 		mpBar.setOpaque(false);
-		mpBar.setVisible(false);
+//		mpBar.setVisible(false);
 		panel.add(mpBar);
+		panel.setPreferredSize(new Dimension(120, 40));
+		panel.revalidate();
+
+		getPanel().add(panel);
 
 //		panel.setPreferredSize(new Dimension(, 40));
 
 		new RefreshLoop<>("aa-tick-tracker-refresh", this, AATickTrackerOverlay::refresh, unused -> calculateScaledFrameTime(30)).start();
 		settings.addAndRunListener(this::applySettings);
+		mpBar.invalidate();
+		SwingUtilities.invokeLater(() -> mpBar.revalidate());
+	}
+
+	@Override
+	protected void onBecomeVisible() {
+		super.onBecomeVisible();
+		mpBar.revalidate();
+	}
+
+	@Override
+	public void finishInit() {
+		super.finishInit();
+		mpBar.revalidate();
 	}
 
 	private void applySettings() {
@@ -118,14 +141,17 @@ public class AATickTrackerOverlay extends XivOverlay {
 			aaBar.setVisible(true);
 		}
 		TickInfo tick = mpTracker.getTick(player);
-		TickEvent lastTickEvent = this.lastTickEvent;
+		HpMpTickEvent lastTickEvent = this.lastTickEvent;
 		if (tick == null || lastTickEvent == null) {
 			mpBar.setVisible(false);
 		}
 		else {
 			long fromLast = tick.getMsFromLastTick(lastTickEvent.effectiveTimeNow());
 			mpBar.setPercent1(fromLast / (double) tick.getIntervalMs());
-			mpBar.setVisible(true);
+			if (!mpBar.isVisible()) {
+				mpBar.setVisible(true);
+				SwingUtilities.invokeLater(mpBar::revalidate);
+			}
 		}
 		aaBar.repaint();
 		mpBar.repaint();
@@ -133,8 +159,8 @@ public class AATickTrackerOverlay extends XivOverlay {
 
 
 	@HandleEvents
-	public void ticker(EventContext context, TickEvent event) {
-		if (event.getCombatant().isThePlayer()) {
+	public void ticker(EventContext context, HpMpTickEvent event) {
+		if (event.getTarget().isThePlayer()) {
 			lastTickEvent = event;
 		}
 	}

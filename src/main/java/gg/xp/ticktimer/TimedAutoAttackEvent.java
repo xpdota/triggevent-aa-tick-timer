@@ -1,12 +1,14 @@
 package gg.xp.ticktimer;
 
 import gg.xp.reevent.events.BaseEvent;
+import gg.xp.reevent.events.SystemEvent;
 import gg.xp.xivsupport.events.actlines.events.AbilityUsedEvent;
 import gg.xp.xivsupport.events.actlines.events.HasDuration;
 
 import java.io.Serial;
 import java.time.Duration;
 
+@SystemEvent
 public class TimedAutoAttackEvent extends BaseEvent implements HasDuration {
 	@Serial
 	private static final long serialVersionUID = -8427829789753169207L;

@@ -18,6 +18,16 @@ public class AATickTracker {
 	private final StatusEffectRepository buffs;
 	private volatile @Nullable TimedAutoAttackEvent last;
 
+	// TODO: rewrite basically this whole thing
+	/*
+		There are several issues:
+		1. We need to account for casts, including canceled casts
+		2. Haste buffs DO apply immediately, they do not wait for the next auto
+		Thus, it should be rewritten to simply use a refresh loop, which advances
+		a counter from 0.0 to 1.0 by (time delta / auto time), or zero if a cast
+		is in progress.
+	 */
+
 	public AATickTracker(XivState state, StatusEffectRepository buffs) {
 		this.state = state;
 		this.buffs = buffs;
@@ -51,18 +61,20 @@ public class AATickTracker {
 		if (playerJob == null) {
 			return null;
 		}
+		// You can find these by looking at the "delay" stat on a weapon
 		aaBase = switch (playerJob) {
 			case PLD -> 2.240;
 			case MNK, NIN -> 2.560;
-			case WAR -> 3.360;
-			case DRG, GNB -> 2.800;
-			case BRD -> 3.040;
-			case RDM -> 3.340;
-			case BLM -> 3.280;
-			case SMN, SCH, DNC -> 3.120;
 			case MCH, SAM -> 2.640;
-			case DRK -> 2.960;
-			case MRD, ARC, AST -> 2.960;
+			case DRG, GNB, SGE -> 2.800;
+			case DRK, MRD, ARC -> 2.960;
+			case BRD -> 3.040;
+			case SMN, SCH, DNC -> 3.120;
+			case RPR, AST -> 3.200;
+			case BLM, BLU -> 3.280;
+			case RDM -> 3.340;
+			case WAR -> 3.360;
+			case WHM -> 3.440;
 			// I don't know, just make a guess
 			default -> 3.000;
 		};
