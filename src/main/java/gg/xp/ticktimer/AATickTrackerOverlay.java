@@ -4,7 +4,6 @@ import gg.xp.reevent.events.EventContext;
 import gg.xp.reevent.scan.HandleEvents;
 import gg.xp.reevent.scan.ScanMe;
 import gg.xp.xivsupport.events.actlines.events.HpMpTickEvent;
-import gg.xp.xivsupport.events.actlines.events.TickEvent;
 import gg.xp.xivsupport.events.state.XivState;
 import gg.xp.xivsupport.events.state.combatstate.HpMpTickTracker;
 import gg.xp.xivsupport.events.state.combatstate.TickInfo;
@@ -30,6 +29,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 	private HpMpTickEvent lastTickEvent;
 	private Color aaFill;
 	private Color aaReady;
+	private Color aaPaused;
 
 	public AATickTrackerOverlay(AATickTracker tracker, OverlayConfig oc, PersistenceProvider pers, HpMpTickTracker mpTracker, XivState state, AATickSettings settings) {
 		super("AA/Tick Tracker", "aa-tick-tracker.overlay", oc, pers);
@@ -68,18 +68,21 @@ public class AATickTrackerOverlay extends XivOverlay {
 		new RefreshLoop<>("aa-tick-tracker-refresh", this, AATickTrackerOverlay::refresh, unused -> calculateScaledFrameTime(30)).start();
 		settings.addAndRunListener(this::applySettings);
 		mpBar.invalidate();
+		// TODO: is this still needed?
 		SwingUtilities.invokeLater(() -> mpBar.revalidate());
 	}
 
 	@Override
 	protected void onBecomeVisible() {
 		super.onBecomeVisible();
+		// TODO: is this still needed?
 		mpBar.revalidate();
 	}
 
 	@Override
 	public void finishInit() {
 		super.finishInit();
+		// TODO: is this still needed?
 		mpBar.revalidate();
 	}
 
@@ -87,6 +90,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 		aaBar.setColor3(settings.getAaBgColor().get());
 		this.aaFill = settings.getAaFillColor().get();
 		this.aaReady = settings.getAaReadyColor().get();
+		this.aaPaused = settings.getAaPausedColor().get();
 		aaBar.setTextColor(settings.getAaTextColor().get());
 
 		mpBar.setColor3(settings.getMpBgColor().get());
@@ -101,11 +105,10 @@ public class AATickTrackerOverlay extends XivOverlay {
 	}
 
 	@SuppressWarnings("MagicNumber")
-	private void setAAbarText(@Nullable TimedAutoAttackEvent auto) {
+	private void setAAbarText(@Nullable AAInfo auto) {
 		AATextOptions textOption = settings.getAaShowText().get();
 		if (auto == null) {
 			switch (textOption) {
-
 				case NOTHING -> aaBar.setTextOptions("");
 				case PLAIN_TEXT, AA_INTERVAL -> aaBar.setTextOptions("Auto-Attack", "AA");
 			}
@@ -115,7 +118,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 				case NOTHING -> aaBar.setTextOptions("");
 				case PLAIN_TEXT -> aaBar.setTextOptions("Auto-Attack", "AA");
 				case AA_INTERVAL -> {
-					String aaTime = String.format("%.03f", auto.getInitialDuration().toMillis() / 1000.0);
+					String aaTime = String.format("%.03f", auto.aaTime().toMillis() / 1000.0);
 					aaBar.setTextOptions("Auto-Attack: " + aaTime, "AA: " + aaTime);
 					aaBar.revalidate();
 				}
@@ -129,14 +132,21 @@ public class AATickTrackerOverlay extends XivOverlay {
 		if (player == null) {
 			return;
 		}
-		TimedAutoAttackEvent last = aaTracker.getLast();
+		AAInfo last = aaTracker.getInfo();
 		if (last == null) {
 			aaBar.setVisible(false);
 		}
 		else {
-			double pct = last.getEstimatedElapsedDuration().toMillis() / (double) last.getInitialDuration().toMillis();
+			double pct = last.aaProgress();
 			aaBar.setPercent1(pct);
-			aaBar.setColor1(pct > 0.999 ? aaReady : aaFill);
+			Color barColor;
+			if (last.isPaused()) {
+				barColor = aaPaused;
+			}
+			else {
+				barColor = pct > 0.999 ? aaReady : aaFill;
+			}
+			aaBar.setColor1(barColor);
 			setAAbarText(last);
 			aaBar.setVisible(true);
 		}
