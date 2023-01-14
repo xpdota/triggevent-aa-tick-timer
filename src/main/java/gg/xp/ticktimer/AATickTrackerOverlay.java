@@ -110,7 +110,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 		if (auto == null) {
 			switch (textOption) {
 				case NOTHING -> aaBar.setTextOptions("");
-				case PLAIN_TEXT, AA_INTERVAL -> aaBar.setTextOptions("Auto-Attack", "AA");
+				case PLAIN_TEXT, AA_INTERVAL, AA_INTERVAL_ONLY -> aaBar.setTextOptions("Auto-Attack", "AA");
 			}
 		}
 		else {
@@ -120,6 +120,11 @@ public class AATickTrackerOverlay extends XivOverlay {
 				case AA_INTERVAL -> {
 					String aaTime = String.format("%.03f", auto.aaTime().toMillis() / 1000.0);
 					aaBar.setTextOptions("Auto-Attack: " + aaTime, "AA: " + aaTime);
+					aaBar.revalidate();
+				}
+				case AA_INTERVAL_ONLY -> {
+					String aaTime = String.format("%.03f", auto.aaTime().toMillis() / 1000.0);
+					aaBar.setTextOptions(aaTime);
 					aaBar.revalidate();
 				}
 			}
