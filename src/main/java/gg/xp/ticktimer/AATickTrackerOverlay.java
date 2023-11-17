@@ -69,7 +69,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 		settings.addAndRunListener(this::applySettings);
 		mpBar.invalidate();
 		// TODO: is this still needed?
-		SwingUtilities.invokeLater(() -> mpBar.revalidate());
+		SwingUtilities.invokeLater(mpBar::revalidate);
 	}
 
 	@Override
@@ -87,15 +87,23 @@ public class AATickTrackerOverlay extends XivOverlay {
 	}
 
 	private void applySettings() {
-		aaBar.setColor3(settings.getAaBgColor().get());
-		this.aaFill = settings.getAaFillColor().get();
-		this.aaReady = settings.getAaReadyColor().get();
-		this.aaPaused = settings.getAaPausedColor().get();
-		aaBar.setTextColor(settings.getAaTextColor().get());
+		boolean aaVis = settings.getAaEnabled().get();
+		aaBar.setVisible(aaVis);
+		if (aaVis) {
+			aaBar.setColor3(settings.getAaBgColor().get());
+			this.aaFill = settings.getAaFillColor().get();
+			this.aaReady = settings.getAaReadyColor().get();
+			this.aaPaused = settings.getAaPausedColor().get();
+			aaBar.setTextColor(settings.getAaTextColor().get());
+		}
 
-		mpBar.setColor3(settings.getMpBgColor().get());
-		mpBar.setColor1(settings.getMpFillColor().get());
-		mpBar.setTextColor(settings.getMpTextColor().get());
+		boolean mpVis = settings.getMpEnabled().get();
+		mpBar.setVisible(mpVis);
+		if (mpVis) {
+			mpBar.setColor3(settings.getMpBgColor().get());
+			mpBar.setColor1(settings.getMpFillColor().get());
+			mpBar.setTextColor(settings.getMpTextColor().get());
+		}
 
 		switch (settings.getMpShowText().get()) {
 			case NONE -> mpBar.setTextOptions("");

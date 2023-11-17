@@ -2,6 +2,7 @@ package gg.xp.ticktimer;
 
 import gg.xp.reevent.scan.ScanMe;
 import gg.xp.xivsupport.persistence.PersistenceProvider;
+import gg.xp.xivsupport.persistence.settings.BooleanSetting;
 import gg.xp.xivsupport.persistence.settings.ColorSetting;
 import gg.xp.xivsupport.persistence.settings.EnumSetting;
 import gg.xp.xivsupport.persistence.settings.ObservableSetting;
@@ -11,12 +12,14 @@ import java.util.List;
 
 @ScanMe
 public class AATickSettings extends ObservableSetting {
+	private final BooleanSetting aaEnabled;
 	private final ColorSetting aaTextColor;
 	private final ColorSetting aaFillColor;
 	private final ColorSetting aaBgColor;
 	private final ColorSetting aaReadyColor;
 	private final EnumSetting<AATextOptions> aaShowText;
 
+	private final BooleanSetting mpEnabled;
 	private final ColorSetting mpTextColor;
 	private final ColorSetting mpFillColor;
 	private final ColorSetting mpBgColor;
@@ -26,6 +29,7 @@ public class AATickSettings extends ObservableSetting {
 	public AATickSettings(PersistenceProvider pers) {
 		String settingKeyBase = "aa-tick-tracker.settings.";
 
+		aaEnabled = new BooleanSetting(pers, settingKeyBase + "aaEnabled", true);
 		aaTextColor = new ColorSetting(pers, settingKeyBase + "aaTextColor", new Color(255, 255, 255));
 		aaFillColor = new ColorSetting(pers, settingKeyBase + "aaFillColor", new Color(255, 0, 0, 128));
 		aaBgColor = new ColorSetting(pers, settingKeyBase + "aaBgColor", new Color(128, 128, 128, 30));
@@ -33,12 +37,17 @@ public class AATickSettings extends ObservableSetting {
 		aaPausedColor = new ColorSetting(pers, settingKeyBase + "aaPausedColor", new Color(255, 128, 0, 128));
 		aaShowText = new EnumSetting<>(pers, settingKeyBase + "aaShowText", AATextOptions.class, AATextOptions.AA_INTERVAL);
 
+		mpEnabled = new BooleanSetting(pers, settingKeyBase + "mpEnabled", true);
 		mpTextColor = new ColorSetting(pers, settingKeyBase + "mpTextColor", new Color(255, 255, 255));
 		mpFillColor = new ColorSetting(pers, settingKeyBase + "mpFillColor", new Color(128, 0, 128, 192));
 		mpBgColor = new ColorSetting(pers, settingKeyBase + "mpBgColor", new Color(128, 128, 128, 30));
 		mpShowText = new EnumSetting<>(pers, settingKeyBase + "mpShowText", MPTextOptions.class, MPTextOptions.PLAIN_TEXT);
 		List.of(aaTextColor, aaFillColor, aaBgColor, aaReadyColor, aaShowText, mpTextColor, mpFillColor, mpBgColor, mpShowText)
 				.forEach(setting -> setting.addListener(this::notifyListeners));
+	}
+
+	public BooleanSetting getAaEnabled() {
+		return aaEnabled;
 	}
 
 	public ColorSetting getAaTextColor() {
@@ -63,6 +72,10 @@ public class AATickSettings extends ObservableSetting {
 
 	public EnumSetting<AATextOptions> getAaShowText() {
 		return aaShowText;
+	}
+
+	public BooleanSetting getMpEnabled() {
+		return mpEnabled;
 	}
 
 	public ColorSetting getMpTextColor() {
