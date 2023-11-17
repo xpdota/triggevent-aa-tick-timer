@@ -1,7 +1,7 @@
 {
     "name": "Tick Tracker",
     "dir_name": "aa-mp-tick-tracker",
-    "icon_url": "https://github.com/xpdota/triggevent-aa-tick-timer/blob/master/img.png",
+    "icon_url": "https://raw.githubusercontent.com/xpdota/triggevent-aa-tick-timer/master/img.png",
     "webpage_url": "https://github.com/xpdota/triggevent-example-module",
     "url_pattern": "https://xpdota.github.io/triggevent-aa-tick-timer/master/%s",
     "description": "Simple AA/MP tick tracker overlay"
