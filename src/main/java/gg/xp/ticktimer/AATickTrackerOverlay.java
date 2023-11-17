@@ -110,6 +110,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 			case PLAIN_TEXT -> mpBar.setTextOptions("Mana Ticks", "MP Tick", "MP");
 			case CUR_MP, CUR_MAX_MP -> mpBar.setTextOptions("Not Yet Implemented", "NI");
 		}
+		mpBar.revalidate();
 	}
 
 	@SuppressWarnings("MagicNumber")
@@ -146,7 +147,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 			return;
 		}
 		AAInfo last = aaTracker.getInfo();
-		if (last == null) {
+		if (last == null || !settings.getAaEnabled().get()) {
 			aaBar.setVisible(false);
 		}
 		else {
@@ -165,7 +166,7 @@ public class AATickTrackerOverlay extends XivOverlay {
 		}
 		TickInfo tick = mpTracker.getTick(player);
 		HpMpTickEvent lastTickEvent = this.lastTickEvent;
-		if (tick == null || lastTickEvent == null) {
+		if (tick == null || lastTickEvent == null || !settings.getMpEnabled().get()) {
 			mpBar.setVisible(false);
 		}
 		else {

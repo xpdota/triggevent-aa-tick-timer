@@ -42,7 +42,7 @@ public class AATickSettings extends ObservableSetting {
 		mpFillColor = new ColorSetting(pers, settingKeyBase + "mpFillColor", new Color(128, 0, 128, 192));
 		mpBgColor = new ColorSetting(pers, settingKeyBase + "mpBgColor", new Color(128, 128, 128, 30));
 		mpShowText = new EnumSetting<>(pers, settingKeyBase + "mpShowText", MPTextOptions.class, MPTextOptions.PLAIN_TEXT);
-		List.of(aaTextColor, aaFillColor, aaBgColor, aaReadyColor, aaShowText, mpTextColor, mpFillColor, mpBgColor, mpShowText)
+		List.of(aaTextColor, aaFillColor, aaBgColor, aaReadyColor, aaShowText, mpTextColor, mpFillColor, mpBgColor, mpShowText, mpEnabled, aaEnabled)
 				.forEach(setting -> setting.addListener(this::notifyListeners));
 	}
 
