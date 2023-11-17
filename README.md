@@ -1,8 +1,12 @@
 # AA/MP tick timer for Triggevent
 
-Simple addon for displaying AA/MP time.
+Simple addon for displaying AA time and/or MP ticks.
+
+![img.png](img.png)
 
 AA timer may not be accurate with all haste buffs.
+
+You can enable/disable AA and MP, and customize the colors for each.
 
 ## Installation
 
