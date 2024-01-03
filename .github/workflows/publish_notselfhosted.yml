@@ -58,7 +58,7 @@ jobs:
           # Can't just use working-directory: https://github.com/GabrielBB/xvfb-action/issues/32
           working-directory: triggevent-base
           run: |
-            mvn -T8 clean install -DskipTests
+            mvn -T8 clean install -DskipTests -pl '!launcher'
 
       - name: Build with Maven
         uses: gabrielbb/xvfb-action@v1.6
